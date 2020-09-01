@@ -89,6 +89,7 @@
 			<button id="sphere">SPHERE</button>
 			<button id="helix">HELIX</button>
 			<button id="grid">GRID</button>
+			<button id="pyramid">PYRAMID</button>
 		</div>
 
 		<script type="module">
@@ -224,7 +225,7 @@
 			var controls;
 
 			var objects = [];
-			var targets = { table: [], sphere: [], helix: [], grid: [] };
+			var targets = { table: [], sphere: [], helix: [], grid: [], pyramid: [] };
 
 			init();
 			animate();
@@ -343,6 +344,60 @@
 
 				}
 
+				// pyramid
+				
+				var axis = new THREE.Vector3(0, 1, 0);
+				var lookAt = new THREE.Vector3();
+				var localLookAt = new THREE.Vector3();
+
+				// pyramid sides
+				var itemH = 180;
+				var itemW = 180;
+				var startH = itemH * 1.75;
+				for (let sides = 0; sides < 4; sides++){
+					let angle = Math.PI * 0.5 * sides;
+					let firstItem = 1;
+					lookAt.set(0, 1, 1).normalize().applyAxisAngle(axis, angle);
+					for (let rows = 0; rows < 5; rows++){
+						
+					let items = firstItem + (rows * 2); // arithmetic progression
+						
+					let h = startH - rows * itemH;
+					let w = -((items - 1) / 2) * itemW;
+						
+					for (let item = 0; item < items; item++){
+							let object = new THREE.Object3D();
+						object.position.set(
+							w + item * itemW,
+							h,
+							(rows + 1) * itemW
+						);
+						object.position.applyAxisAngle(axis, angle);
+						object.lookAt(localLookAt.addVectors(object.position, lookAt));
+						targets.pyramid.push(object);
+					}
+					}
+				
+				}
+
+				// pyramid base
+				lookAt.set(0, -1, 0);
+				var step = (itemW * 9) / 5;
+				for (let i = 0; i < 18; i ++){
+					let object = new THREE.Object3D();
+					let x0 = -itemW * 4;
+					let z0 = -itemW * 4;
+					let row = Math.floor(i / 5);
+					let col = i - (row * 5);
+					object.position.set(
+						x0 + col * step,
+					-itemH * 3,
+					z0 + row * step
+					)
+					object.lookAt(localLookAt.addVectors(object.position, lookAt));
+					targets.pyramid.push(object);
+				}
+
 				//
 
 				renderer = new CSS3DRenderer();
@@ -381,6 +436,13 @@
 				button.addEventListener( 'click', function () {
 
 					transform( targets.grid, 2000 );
+
+				}, false );
+
+				var button = document.getElementById( 'pyramid' );
+				button.addEventListener( 'click', function () {
+
+					transform( targets.pyramid, 2000 );
 
 				}, false );
 
